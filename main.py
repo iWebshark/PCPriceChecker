@@ -10,7 +10,8 @@ from flask import Flask, request
 
 secret = 'ef54dfcbd52e49988755a23a04d47ac9'
 url = 'https://pc-price-checker.herokuapp.com/' + secret
-bot = telebot.TeleBot("1471126006:AAGPy4aQAaRqOnceNUYvE87wcHwOO2b2KDU")
+TOKEN = '1471126006:AAGPy4aQAaRqOnceNUYvE87wcHwOO2b2KDU'
+bot = telebot.TeleBot(TOKEN)
 bot.remove_webhook()
 bot.set_webhook(url=url)
 
