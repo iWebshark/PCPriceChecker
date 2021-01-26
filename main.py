@@ -83,11 +83,11 @@ def get_components_info_text(bs, link, is_profitable):
     if is_profitable:
         return f'<b>Скорее беги заказывать!</b>\n\n' \
                f'{name}\n\n' \
-               f'🔥<b>{low_price}</b>🔥\n\n' \
+               f'🔥<b>{low_price} р.</b>🔥\n\n' \
                f'{link}'
     else:
         return f'{name}\n\n' \
-               f'<b>{low_price}</b>'
+               f'<b>{low_price} р.</b>'
 
 
 def get_component_image(bs):
@@ -108,8 +108,7 @@ def start_checking():
 
 if __name__ == '__main__':
     schedule.every().hour.do(monitor_price)
-    schedule.every(3).seconds.do(show_prices)
-    # schedule.every().day.at('08:00').do(show_prices)
+    schedule.every().day.at('08:00').do(show_prices)
     thread = threading.Thread(target=start_checking, name="price_checking_thread")
     thread.start()
     app.run(host="0.0.0.0", port=os.environ.get('PORT', 5000))
