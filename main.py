@@ -108,7 +108,8 @@ def start_checking():
 
 if __name__ == '__main__':
     schedule.every().hour.do(monitor_price)
-    schedule.every().day.at('08:00').do(show_prices)
+    schedule.every(3).seconds.do(show_prices)
+    # schedule.every().day.at('08:00').do(show_prices)
     thread = threading.Thread(target=start_checking, name="price_checking_thread")
     thread.start()
     app.run(host="0.0.0.0", port=os.environ.get('PORT', 5000))
