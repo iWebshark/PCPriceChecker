@@ -33,7 +33,7 @@ def webhook():
 
 @bot.message_handler(commands=['start', 'help'])
 def on_start(message: telebot.types.Message):
-    if message.chat.id == MY_CHAT_ID:
+    if str(message.chat.id) == str(MY_CHAT_ID):
         bot.send_message(MY_CHAT_ID, "Привет, хозяин)\n"
                                      "Цены чекаются каждый час")
 
