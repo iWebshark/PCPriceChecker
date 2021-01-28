@@ -1,19 +1,21 @@
-import telebot
+import os
+import threading
+import time
+from urllib.parse import urlparse
 import bs4
 import requests
 import schedule
-import time
-import threading
-from urllib.parse import urlparse
-import os
+import telebot
 from flask import Flask, request
 
 secret = 'ef54dfcbd52e49988755a23a04d47ac9'
 url = 'https://pc-price-checker.herokuapp.com/' + secret
-TOKEN = '1471126006:AAGPy4aQAaRqOnceNUYvE87wcHwOO2b2KDU'
+TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 bot.remove_webhook()
 bot.set_webhook(url=url)
+
+MY_CHAT_ID = os.environ.get('MY_CHAT_ID')
 
 components = {'GPU': ('https://catalog.onliner.by/videocard/gigabyte/gvn3070gamingoc8', '2200'),
               'CPU': ('https://catalog.onliner.by/cpu/amd/rzn55600x', '850'),
@@ -31,14 +33,9 @@ def webhook():
 
 @bot.message_handler(commands=['start', 'help'])
 def on_start(message: telebot.types.Message):
-    with open('users.txt', 'r+') as users_file:
-        if str(message.chat.id) not in users_file.read():
-            answer = f'Ку здарова, {message.chat.username}\n' \
-                     f'Записал тебя'
-            users_file.write(f'{message.chat.id}\n')
-        else:
-            answer = f'И снова здравствуйте, {message.chat.username}'
-    bot.send_message(message.chat.id, answer)
+    if message.chat.id == MY_CHAT_ID:
+        bot.send_message(MY_CHAT_ID, "Привет, хозяин)\n"
+                                     "Цены чекаются каждый час")
 
 
 def monitor_price():
@@ -62,13 +59,11 @@ def show_prices():
 def send_user_message(bs, data, is_profitable):
     image_name = get_component_image(bs)
     text = get_components_info_text(bs, data[0], is_profitable)
-    with open('users.txt', 'r+') as users:
-        with open(image_name, 'rb') as image:
-            for user in users:
-                bot.send_photo(user,
-                               image,
-                               text,
-                               parse_mode='html')
+    with open(image_name, 'rb') as image:
+        bot.send_photo(MY_CHAT_ID,
+                       image,
+                       text,
+                       parse_mode='html')
 
 
 def get_components_info_text(bs, link, is_profitable):
