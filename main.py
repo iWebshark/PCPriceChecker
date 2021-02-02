@@ -16,10 +16,13 @@ bot.remove_webhook()
 bot.set_webhook(url=url)
 
 MY_CHAT_ID = os.environ.get('MY_CHAT_ID')
+MAX_PRICE = os.environ.get('MAX_PRICE')
 
-components = {'GPU': ('https://catalog.onliner.by/videocard/gigabyte/gvn3070gamingoc8', '2200'),
-              'CPU': ('https://catalog.onliner.by/cpu/amd/rzn55600x', '850'),
-              'MB': ('https://catalog.onliner.by/motherboard/gigabyte/b550aoruselite', '450')}
+components = ['https://catalog.onliner.by/videocard/palit/ne63070s19p21041',
+              'https://catalog.onliner.by/videocard/gigabyte/gvn3070aorusm8gd',
+              'https://catalog.onliner.by/videocard/gigabyte/gvn3070visionoc8',
+              'https://catalog.onliner.by/videocard/msi/rtx3070gamingxtr',
+              'https://catalog.onliner.by/videocard/gigabyte/gvn3070gamingoc8']
 
 app = Flask(__name__)
 
@@ -39,26 +42,26 @@ def on_start(message: telebot.types.Message):
 
 
 def monitor_price():
-    for key, data in components.items():
-        bs = bs4.BeautifulSoup(requests.get(data[0]).text, 'lxml')
+    for link in components:
+        bs = bs4.BeautifulSoup(requests.get(link).text, 'lxml')
         low_price = bs.find('span', itemprop="lowPrice")
         # Ищем минимальную цену
         if low_price is not None:
             low_price = low_price.get_text()
             # Сделать рассылку если цена приемлимая
-            if float(low_price) <= float(data[1]):
-                send_user_message(bs, data, is_profitable=True)
+            if float(low_price) <= float(MAX_PRICE):
+                send_user_message(bs, link, is_profitable=True)
 
 
 def show_prices():
-    for key, data in components.items():
-        bs = bs4.BeautifulSoup(requests.get(data[0]).text, 'lxml')
-        send_user_message(bs, data, is_profitable=False)
+    for link in components:
+        bs = bs4.BeautifulSoup(requests.get(link).text, 'lxml')
+        send_user_message(bs, link, is_profitable=False)
 
 
-def send_user_message(bs, data, is_profitable):
+def send_user_message(bs, link, is_profitable):
     image_name = get_component_image(bs)
-    text = get_components_info_text(bs, data[0], is_profitable)
+    text = get_components_info_text(bs, link, is_profitable)
     with open(image_name, 'rb') as image:
         bot.send_photo(MY_CHAT_ID,
                        image,
@@ -103,7 +106,7 @@ def start_checking():
 
 if __name__ == '__main__':
     schedule.every().hour.do(monitor_price)
-    schedule.every().day.at('08:00').do(show_prices)
+    schedule.every().day.at('07:00').do(show_prices)
     thread = threading.Thread(target=start_checking, name="price_checking_thread")
     thread.start()
     app.run(host="0.0.0.0", port=os.environ.get('PORT', 5000))
