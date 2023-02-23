@@ -8,8 +8,8 @@ import schedule
 import telebot
 from flask import Flask, request
 
-secret = 'ef54dfcbd52e49988755a23a04d47ac9'
-url = 'https://pc-price-checker.herokuapp.com/' + secret
+secret = os.environ.get('SECRET_KEY')
+url = os.environ.get('SERVER_URL') + secret
 TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 bot.remove_webhook()
@@ -18,11 +18,7 @@ bot.set_webhook(url=url)
 MY_CHAT_ID = os.environ.get('MY_CHAT_ID')
 MAX_PRICE = os.environ.get('MAX_PRICE')
 
-components = ['https://catalog.onliner.by/videocard/palit/ne63070s19p21041',
-              'https://catalog.onliner.by/videocard/gigabyte/gvn3070aorusm8gd',
-              'https://catalog.onliner.by/videocard/gigabyte/gvn3070visionoc8',
-              'https://catalog.onliner.by/videocard/msi/rtx3070gamingxtr',
-              'https://catalog.onliner.by/videocard/gigabyte/gvn3070gamingoc8']
+components = []
 
 app = Flask(__name__)
 
